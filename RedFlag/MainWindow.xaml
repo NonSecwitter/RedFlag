@@ -1,0 +1,418 @@
+﻿<Window x:Class="RedFlag.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:conv="clr-namespace:RedFlag.Converters"
+        xmlns:vm="clr-namespace:RedFlag.ViewModels"
+        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:local="clr-namespace:RedFlag"
+        xmlns:load="clr-namespace:LoadingPanelSample.Controls"
+        mc:Ignorable="d"
+        Title="Red Flag" Height="350" Width="525" ResizeMode="CanMinimize">
+    <Window.DataContext>
+        <ObjectDataProvider ObjectType="{x:Type vm:MainWindowViewModel}"/>
+    </Window.DataContext>
+
+    <Window.Background>
+        <SolidColorBrush Color="WhiteSmoke"/>
+    </Window.Background>
+
+    <Window.Resources>
+        
+        <Style TargetType="Button">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Height" Value="20"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Deleting}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SearchClearBtn" TargetType="Button">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Content" Value="Search"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Searching}" Value="True">
+                    <Setter Property="Content" Value="Clear"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Deleting}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DispositionCheckBox" TargetType="CheckBox">
+            <Setter Property="IsEnabled" Value="False"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ControlButton" TargetType="Button">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="IsEnabled" Value="False"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Deleting}" Value="True">
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="NarrativeTextBox" TargetType="TextBox">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="IsReadOnly" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="IsReadOnly" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="EditableDataGrid" TargetType="DataGrid">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="RowBackground" Value="WhiteSmoke"/>
+            <Setter Property="AlternatingRowBackground" Value="AntiqueWhite"/>
+            <EventSetter Event="MouseDoubleClick" Handler="GridDoubleClick"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="IsReadOnly" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="IsReadOnly" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SearchTextBox" TargetType="TextBox">
+            <Setter Property="IsEnabled" Value="True"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Deleting}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Searching}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="LoadingSpinner" TargetType="{x:Type load:CircularProgressBar}">
+            <Setter Property="Visibility" Value="Hidden"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Processing}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SearchPanel" TargetType="StackPanel">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Searching}" Value="True">
+                <Setter Property="Background" Value="#60FF0000"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="AppStatusText" TargetType="TextBlock">
+            <Setter Property="Text" Value="Idle: Browsing"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="#55000000"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Searching}" Value="True">
+                    <Setter Property="Foreground" Value="#88000000"/>
+                    <Setter Property="Background" Value="#60FF0000"/>
+                    <Setter Property="Text" Value="Searching"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="Foreground" Value="#FF000000"/>
+                    <Setter Property="Background" Value="#60FF0000"/>
+                    <Setter Property="Text" Value="Editing Entry"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Deleting}" Value="True">
+                    <Setter Property="Foreground" Value="#FF000000"/>
+                    <Setter Property="Background" Value="#60FF0000"/>
+                    <Setter Property="Text" Value="Caution: Deleting entry permanently."/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="Foreground" Value="#FF000000"/>
+                    <Setter Property="Background" Value="#60FF0000"/>
+                    <Setter Property="Text" Value="Creating New Entry"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SensitivityLabel" TargetType="TextBlock">
+            <Setter Property="DockPanel.Dock" Value="Left"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Text" Value="{Binding ElementName=SensitivitySlider, Path=Value}"/>
+        </Style>
+
+        <Style x:Key="SensitivtySlider" TargetType="Slider">
+            <Setter Property="DockPanel.Dock" Value="Right"/>
+            <Setter Property="Width" Value="165" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Margin" Value="10,0" />
+            <Setter Property="Maximum" Value="100" />
+            <Setter Property="Minimum" Value="5" />
+            <Setter Property="TickPlacement" Value="BottomRight" />
+            <Setter Property="TickFrequency" Value="5" />
+            <Setter Property="IsSnapToTickEnabled" Value="True" />
+            <Setter Property="SmallChange" Value="0" />
+            <Setter Property="SelectionEnd" Value="6" />
+            <Setter Property="Value" Value="40"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Adding}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Deleting}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Editing}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Searching}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid Name="Home">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <DataGrid Name="FlaggedPersonDataGrid"
+                  Grid.Column="0" 
+                  ItemsSource="{Binding FlaggedPeople}" 
+                  Style="{StaticResource EditableDataGrid}">
+
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsResult}" Value="False">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="*" Header="Last Name" 
+                                    Binding="{Binding LastName, UpdateSourceTrigger=LostFocus}"/>
+                <DataGridTextColumn Width="*" Header="First Name" 
+                                    Binding="{Binding FirstName, UpdateSourceTrigger=LostFocus}"/>
+            </DataGrid.Columns>
+
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
+                                 Color="#FF3399FF"/>
+            </DataGrid.Resources>
+
+        </DataGrid>
+
+        <Grid Grid.Column="1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Vertical">
+
+                    <StackPanel Orientation="Horizontal" Height="24">
+                        <Label Content="Date Modified:"/>
+                        <TextBlock Text="{Binding ElementName=FlaggedPersonDataGrid, 
+                                              Path=SelectedItem.DateModified,
+                                              StringFormat={}{0:MM/dd/yyyy}}" 
+                               Padding="0,5"/>
+
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Height="24">
+                        <Label Content="WS Client:"/>
+                        <TextBlock Text="{Binding ElementName=FlaggedPersonDataGrid, 
+                                              Path=SelectedItem.IsClient, 
+                                              Converter={conv:BoolToYesNo}}" 
+                               Padding="0,5"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Height="24">
+                        <Label Content="AU Number:"/>
+                        <TextBlock Text="{Binding ElementName=FlaggedPersonDataGrid, 
+                                              Path=SelectedItem.AUNumber}" 
+                               Padding="0,5"/>
+                    </StackPanel>
+
+                </StackPanel>
+
+
+                <TextBlock Name="AppStatus" Grid.Row="1" 
+                           Grid.ColumnSpan="2"
+                           Style="{StaticResource AppStatusText}"/>
+
+
+                <StackPanel Orientation="Vertical" Grid.Column="1">
+
+                    <StackPanel Orientation="Horizontal" Height="24">
+                        <Label Content="Denied _All Services:"/>
+                        <CheckBox IsChecked="{Binding SelectedItem.DeniedAllServices, ElementName=FlaggedPersonDataGrid}"
+                                  Style="{StaticResource DispositionCheckBox}"
+                                  VerticalAlignment="Bottom" 
+                                  Margin="0,0,0,5"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Height="24">
+                        <Label Content="Denied _Shelter:"/>
+                        <CheckBox IsChecked="{Binding SelectedItem.DeniedShelter, ElementName=FlaggedPersonDataGrid}"
+                                  Style="{StaticResource DispositionCheckBox}"
+                                  VerticalAlignment="Bottom" 
+                                  Margin="0,0,0,3"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Height="24">
+                        <Label Content="_Rescreen:"/>
+                        <CheckBox IsChecked="{Binding SelectedItem.Rescreen, ElementName=FlaggedPersonDataGrid}"
+                                  Style="{StaticResource DispositionCheckBox}"
+                                  VerticalAlignment="Bottom" 
+                                  Margin="0,0,0,3"/>
+                    </StackPanel>
+                </StackPanel>
+
+            </Grid>
+
+            <TextBox Grid.Row="1"
+                     TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Visible"
+                     HorizontalAlignment="Stretch" 
+                     VerticalAlignment="Stretch" 
+                     Grid.Column="1" 
+                     Background="#FFFCFCFC"
+                     Style="{StaticResource NarrativeTextBox}"
+                     Text="{Binding ElementName=FlaggedPersonDataGrid, 
+                                    Path=SelectedItem.Narrative}"/>
+
+            <Grid Grid.Row="2">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="5*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Name="NewEntryBtn"    Content="New Entry"    Click="NewEntry_Click"/>
+                    <Button Grid.Column="1" Name="EditEntryBtn"   Content="Edit Entry"   Click="EditEntry_Click"/>
+                    <Button Grid.Column="2" Name="DeleteEntryBtn" Content="Delete Entry" Click="DeleteEntry_Click"/>
+
+                </Grid>
+
+                <Grid Grid.Row="1">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <load:CircularProgressBar DockPanel.Dock="Right" x:Name="LoadSpinner" 
+                                                Height="20" Margin="0,0"
+                                                Style="{StaticResource LoadingSpinner}"/>
+
+                    <Button Grid.Column="1"  Name="CommitBtn" 
+                            Content="Commit" Click="Commit_Click" 
+                            Style="{StaticResource ControlButton}"/>
+
+                    <Button Grid.Column="2"  Name="CancelBtn" 
+                            Content="Cancel" Click="Cancel_Click" 
+                            Style="{StaticResource ControlButton}"/>
+
+                </Grid>
+                <StackPanel Grid.Row="2" Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource SearchPanel}">
+
+                        <TextBox Name="SearchText" Height="20" 
+                                 KeyDown="Search_KeyDown"
+                                 Width="200" Margin="5" Style="{StaticResource SearchTextBox}"/>
+
+                        <Button Name="SearchBtn" Click="Search_Click" 
+                            Style="{StaticResource SearchClearBtn}"/>
+
+                    </StackPanel>
+
+
+                    <DockPanel HorizontalAlignment="Stretch">
+                        <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Width="95" Text="Search Accuracy:" Margin="3,0" />
+                        <TextBlock Style="{StaticResource SensitivityLabel}" />
+                        <Slider Name="SensitivitySlider" Style="{StaticResource SensitivtySlider}"/>
+                    </DockPanel>
+
+                </StackPanel>
+            </Grid>
+
+        </Grid>
+
+    </Grid>
+    
+</Window>
